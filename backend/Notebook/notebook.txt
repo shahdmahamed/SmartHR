@@ -1,0 +1,49 @@
+# Libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+###############################################
+# Load the dataset
+df = pd.read_csv("../../data/raw/glassdoor_jobs.csv")
+
+df.head()
+###############################################
+cols_to_drop = ["Job Description", "Salary Estimate", "Headquarters", "Job Title", "Rating", "Company Name", "Location", "Industry", "Sector", "Revenue"]
+df = df.drop(columns=[col for col in cols_to_drop if col in df.columns])
+
+df.columns
+###############################################
+df = df.replace(['na', 'NA', 'Na', 'n/a', 'N/A', 'NaN', 'nan'], pd.NA)
+
+for col in df.columns:
+    df[col] = pd.to_numeric(df[col], errors='coerce')
+
+df = df.fillna(0)
+
+print(df.dtypes.value_counts())
+###############################################
+df['experience_years_proxy'] = df['seniority'].map({
+    0: 1,   # junior ≈ 1 year
+    1: 6    # senior ≈ 6 years
+})
+
+
+###############################################
+skill_cols = ['python', 'excel', 'hadoop', 'spark', 'aws', 'tableau', 'big_data']
+
+df['skill_count'] = df[skill_cols].sum(axis=1)
+/////////////////////////////categorical_cols = [ "job_simp", "Size", "Type of ownership"]
+df = pd.get_dummies(df, columns=categorical_cols, drop_first=True)
+
+# after Encoding
+df.head() 
+###############################################
+df.dtypes
+
+df.describe()
+###############################################
+# save
+df.to_csv("../../data/processed/processed_jobs.csv", index=False)
+print("Data preprocessing completed and saved as 'processed_jobs.csv'")

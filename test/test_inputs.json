@@ -1,0 +1,27 @@
+[
+  {
+    "years_experience": 2,
+    "skill_count": 1,
+    "job_state": "CA"
+  },
+  {
+    "years_experience": 5,
+    "skill_count": 3,
+    "job_state": "NY"
+  },
+  {
+    "years_experience": 8,
+    "skill_count": 5,
+    "job_state": "TX"
+  },
+  {
+    "years_experience": 1,
+    "skill_count": 0,
+    "job_state": "FL"
+  },
+  {
+    "years_experience": 10,
+    "skill_count": 7,
+    "job_state": "WA"
+  }
+]

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>Smart HR Salary Predictor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: #ffffff;
+            padding: 30px 40px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            text-align: left;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type="number"],
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #result {
+            margin-top: 25px;
+            font-size: 18px;
+            color: #007bff;
+            font-weight: bold;
+            min-height: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Smart HR Salary Predictor</h1>
+        
+        <label>Years of Experience:</label>
+        <input type="number" id="years" placeholder="e.g., 5" min="0" />
+
+        <label>Skill Count:</label>
+        <input type="number" id="skills" placeholder="e.g., 4" min="0" max="7" />
+
+        <label>Job State (US):</label>
+        <input type="text" id="state" placeholder="e.g., CA, NY, TX" maxlength="2" />
+
+        <button onclick="predictSalary()">Predict Salary</button>
+
+        <h2 id="result"></h2>
+    </div>
+
+    <script>
+        async function predictSalary() {
+            const years = parseInt(document.getElementById('years').value);
+            const skills = parseInt(document.getElementById('skills').value);
+            const state = document.getElementById('state').value.toUpperCase().trim();
+
+            // Validate inputs
+            if (!years || !skills || !state) {
+                document.getElementById('result').innerText = 'Please fill all fields!';
+                document.getElementById('result').style.color = '#dc3545';
+                return;
+            }
+
+            if (state.length !== 2) {
+                document.getElementById('result').innerText = 'State must be 2 letters (e.g., CA)';
+                document.getElementById('result').style.color = '#dc3545';
+                return;
+            }
+
+            // Show loading message
+            document.getElementById('result').innerText = 'Predicting...';
+            document.getElementById('result').style.color = '#6c757d';
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/predict-salary', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        years_experience: years,
+                        skill_count: skills,
+                        job_state: state
+                    })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || "API Error");
+                }
+
+                const data = await response.json();
+                
+                // Format salary
+                const salary = data.predicted_salary.toLocaleString('en-US', {
+                    style: 'currency',
+                    currency: 'USD'
+                });
+                
+                document.getElementById('result').innerText = `Predicted Salary: ${salary}`;
+                document.getElementById('result').style.color = '#28a745';
+                
+            } catch (err) {
+                document.getElementById('result').innerText = `Error: ${err.message}`;
+                document.getElementById('result').style.color = '#dc3545';
+            }
+        }
+
+        // Allow Enter key to submit
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                predictSalary();
+            }
+        });
+    </script>
+</body>
+</html>
